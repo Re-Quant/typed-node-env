@@ -43,6 +43,40 @@ export class Config {
 export const config = loadConfig(Config)
 ```
 
+**Using nested configuration**
+```js
+export class MongoConfig {
+  @Env()
+  MONGO_URL: string
+
+  @Env()
+  MONGO_USER: string
+
+  @Env()
+  MONGO_PWD: string
+}
+
+export class Config {
+	
+  @Env({ required: true })
+  NODE_ENV: string
+
+  // Use the 'number' or 'boolean' type
+  @Env({ type: 'number' })
+  PORT: number
+
+  @Env()
+  ELASTICSEARCH_URL: string
+
+  @Env('APP_DEBUG', { type: 'boolean' })
+  DEBUG: boolean = true
+
+  @Load()
+  MONGO: MongoConfig
+}
+
+```
+
 **Import**
 
 ```js

@@ -1,12 +1,12 @@
-import { ENV_METADATA, PropertyMeta, ValueType } from './env.decorator'
+import { ENV_METADATA, PropertyMeta, ValueType, LOAD_METADATA, LoadPropertyMeta } from './env.decorator'
 
 export function loadConfig<T>(Config: new () => T): T {
   // tslint:disable-next-line:no-any
   const config: any = new Config()
-  const meta: { readonly [key: string]: PropertyMeta } = Reflect.getMetadata(ENV_METADATA, config)
+  const envMeta: { readonly [key: string]: PropertyMeta } = Reflect.getMetadata(ENV_METADATA, config)
 
-  const values = Object.keys(meta).reduce((valuesAcc: { readonly [key: string]: string }, propertyKey: string) => {
-    const propertyMeta = meta[propertyKey]
+  const values: any = Object.keys(envMeta).reduce((valuesAcc: { readonly [key: string]: string }, propertyKey: string) => {
+    const propertyMeta = envMeta[propertyKey]
     const envValue = tryCast(findEnvValue(propertyMeta), propertyMeta)
 
     checkValueRequired(propertyMeta, envValue)
@@ -18,6 +18,10 @@ export function loadConfig<T>(Config: new () => T): T {
     return { ...valuesAcc, [propertyKey]: envValue }
   }, {})
 
+  const loadMeta: { readonly [key: string]: LoadPropertyMeta } = Reflect.getMetadata(LOAD_METADATA, config)
+  for (var propertyName in loadMeta) {
+    values[propertyName] = loadConfig(loadMeta[propertyName].configType);
+  }
   return Object.freeze({ ...config, ...values })
 }
 

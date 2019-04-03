@@ -16,6 +16,10 @@ export interface PropertyMeta extends Options {
   transform(value: string): ValueType
 }
 
+export interface LoadPropertyMeta {
+  configType: new () => any
+}
+
 const transformMap = {
   string: (value: string): string => value,
   number: parseFloat,
@@ -35,7 +39,7 @@ export function Env(param1?: Param1, param2?: Options): PropertyAnnotation {
   return (target: object, propertyKey: string): void => {
     const envVarName = findEnvVarName(param1, propertyKey)
     const decoratorOptions = findOptions(param1, param2)
-
+    
     const propertyOptions: PropertyMeta = {
       envVarName,
       ...decoratorOptions,
@@ -48,6 +52,24 @@ export function Env(param1?: Param1, param2?: Options): PropertyAnnotation {
       {
         ...existingEnvParams,
         [propertyKey]: propertyOptions,
+      },
+      target,
+    )
+  }
+}
+
+export const LOAD_METADATA = Symbol('load')
+export function Load() {
+  return (target: object, propertyKey: string): void => {
+    const loadParams = Reflect.getMetadata(LOAD_METADATA, target) || {};
+    const configType = Reflect.getMetadata("design:type", target, propertyKey) || {};
+    Reflect.defineMetadata(
+      LOAD_METADATA,
+      {
+        ...loadParams,
+        [propertyKey]: {
+          configType
+        },
       },
       target,
     )

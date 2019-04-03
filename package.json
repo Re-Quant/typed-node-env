@@ -28,7 +28,7 @@
     "lint": "tslint -p . 'src/**/*.ts'",
     "format": "prettier --write src/**/*.ts",
     "clean": "rimraf dist",
-    "test": "NODE_ENV=test jest --maxWorkers=4",
+    "test": "cross-env NODE_ENV=test jest --maxWorkers=4",
     "build": "tsc",
     "prepare": "npm run lint && npm run test && npm run clean && npm run build"
   },
@@ -39,6 +39,7 @@
     "@jbpionnier/eslint-config-node": "^1.7.8",
     "@types/jest": "^23.3.12",
     "@types/node": "^10.12.18",
+    "cross-env": "~5.2.0",
     "jest": "^23.6.0",
     "prettier": "^1.15.3",
     "rimraf": "^2.6.3",

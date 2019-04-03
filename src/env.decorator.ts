@@ -2,9 +2,9 @@ export type ValueType = string | boolean | number | undefined
 
 // tslint:disable-next-line:no-any
 export type PropertyAnnotation = (target: { readonly constructor: any }, propertyKey: string) => void
-
+export type PropertyType = 'string' | 'number' | 'boolean';
 export interface Options {
-  readonly type?: 'string' | 'number' | 'boolean'
+  readonly type?: PropertyType
   readonly required?: boolean
 }
 
@@ -34,16 +34,19 @@ const transformMap = {
 }
 
 export const ENV_METADATA = Symbol('env')
-
+const allowedTypes: { [key: string]: Function } = { 'string': String, 'number': Number, 'boolean': Boolean };
 export function Env(param1?: Param1, param2?: Options): PropertyAnnotation {
   return (target: object, propertyKey: string): void => {
     const envVarName = findEnvVarName(param1, propertyKey)
     const decoratorOptions = findOptions(param1, param2)
-    
+    const propertyType: Function = Reflect.getMetadata("design:type", target, propertyKey);
+    const propertyTypeName = propertyType ? propertyType.name.toLowerCase() : null;
+    const defaultType = ((propertyTypeName != null && allowedTypes[propertyTypeName]) ? propertyType.name.toLowerCase() : 'string') as PropertyType;
+
     const propertyOptions: PropertyMeta = {
       envVarName,
       ...decoratorOptions,
-      transform: transformMap[decoratorOptions.type || 'string'],
+      transform: transformMap[decoratorOptions.type || defaultType],
     }
 
     const existingEnvParams = Reflect.getMetadata(ENV_METADATA, target) || {}

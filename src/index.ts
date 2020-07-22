@@ -1,5 +1,4 @@
-import 'reflect-metadata'
+import 'reflect-metadata';
 
-export { Env, Load } from './env.decorator'
-export { loadConfig } from './loader'
-
+export { Env, Load } from './env.decorator';
+export { loadConfig } from './loader';

@@ -1,4 +1,4 @@
-import { Env, loadConfig } from './'
+import { Env, loadConfig } from '.';
 
 export class Config {
   @Env({ required: true })
@@ -15,11 +15,11 @@ export class Config {
 }
 
 describe('env-decorator', () => {
-  let config: Config
+  let config: Config;
 
   beforeAll(() => {
-    config = loadConfig<Config>(Config)
-  })
+    config = loadConfig<Config>(Config);
+  });
 
   test('check config', () => {
     expect(config).toEqual({
@@ -27,6 +27,6 @@ describe('env-decorator', () => {
       ENV: 'test',
       APP_ENV: 'test',
       DEBUG: true,
-    })
-  })
-})
+    });
+  });
+});

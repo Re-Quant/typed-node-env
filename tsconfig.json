@@ -22,7 +22,8 @@
     ],
     "types": [
       "jest",
-      "jest-extended"
+      "jest-extended",
+      "node"
     ],
     "outDir": "./dist",
     "baseUrl": "./src",

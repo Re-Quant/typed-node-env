@@ -1,3 +1,7 @@
+https://github.com/igabesz/config-decorators
+https://github.com/jbpionnier/env-decorator
+https://github.com/Hippocrate/env-decorator
+
 # Env Decorator
 
 [![npm version](https://badge.fury.io/js/env-decorator.svg)](https://badge.fury.io/js/env-decorator)

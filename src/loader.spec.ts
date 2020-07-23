@@ -2,16 +2,16 @@ import { Env, loadConfig } from '.';
 
 export class Config {
   @Env({ required: true })
-  readonly NODE_ENV: string
+  public readonly NODE_ENV!: string
 
   @Env('NODE_ENV')
-  readonly ENV: string
+  public readonly ENV!: string
 
   @Env(['FOO', 'NODE_ENV'])
-  readonly APP_ENV: string
+  public readonly APP_ENV!: string
 
   @Env('DEBUG')
-  readonly DEBUG: boolean = true
+  public readonly DEBUG: boolean = true
 }
 
 describe('env-decorator', () => {
@@ -21,7 +21,7 @@ describe('env-decorator', () => {
     config = loadConfig<Config>(Config);
   });
 
-  test('check config', () => {
+  it('check config', () => {
     expect(config).toEqual({
       NODE_ENV: 'test',
       ENV: 'test',

@@ -1,4 +1,5 @@
 import { AnyFn, AnyObject } from './ts-utils.type';
+import Dict = NodeJS.Dict;// eslint-disable-line import/order
 
 export type ValueType = string | boolean | number | undefined;
 
@@ -20,17 +21,16 @@ export interface LoadPropertyMeta {
   configType: new () => any;
 }
 
-const transformMap = {
+const booleanValuesMap: Dict<boolean> = {
+  true:  true,
+  false: false,
+  1: true,
+  0: false,
+};
+export const transformMap = {
   string: (value: string): string => value,
   number: parseFloat,
-  boolean: (value: string): boolean | undefined => {
-    if (value === 'true') {
-      return true;
-    }
-    if (value === 'false') {
-      return false;
-    }
-  },
+  boolean: (value: keyof typeof booleanValuesMap | string): boolean | undefined => booleanValuesMap[value],
 };
 
 export const ENV_METADATA = Symbol('env');

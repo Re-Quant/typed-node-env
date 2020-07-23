@@ -48,7 +48,7 @@ export function loadConfig<T>(Config: new () => T): T {
         return { ...valuesAcc, [propertyKey]: envValue };
       }, {});
 
-  const loadMeta = Reflect.getMetadata(LOAD_METADATA, config) as { readonly [key: string]: LoadPropertyMeta };
+  const loadMeta = (Reflect.getMetadata(LOAD_METADATA, config) || {}) as { readonly [key: string]: LoadPropertyMeta };
   Object.entries(loadMeta).forEach(([propertyName, value]) => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
     values[propertyName] = loadConfig(value.configType);

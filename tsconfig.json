@@ -7,7 +7,6 @@
     "importHelpers": true,
     "incremental": true,
     "lib": [
-      "dom",
       "es2019"
     ],
     "module": "commonjs",

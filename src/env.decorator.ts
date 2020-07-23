@@ -8,7 +8,7 @@ export interface Options {
   readonly required?: boolean;
 }
 
-export type Param1 = string | ReadonlyArray<string> | Options | undefined
+export type Param1 = string | ReadonlyArray<string> | Options | undefined;
 
 export interface PropertyMeta extends Options {
   readonly envVarName: ReadonlyArray<string>;
@@ -37,14 +37,14 @@ export const ENV_METADATA = Symbol('env');
 const allowedTypes: { [key: string]: AnyFn } = { string: String, number: Number, boolean: Boolean };
 
 function findEnvVarName(param1: Param1, propertyKey: string | symbol): ReadonlyArray<string> {
-  if (typeof param1 === 'string') {
-    return [param1];
-  }
-  if (Array.isArray(param1)) {
-    return param1 as string[];
-  }
-  // TODO: implement symbol keys handling
-  return [propertyKey as string];
+  if (typeof param1 === 'string') return [param1];
+  if (Array.isArray(param1)) return param1 as string[];
+  if (typeof propertyKey === 'string') return [propertyKey];
+
+  throw new Error(`Can't find ENV variable name.
+    Property Key: ${ String(propertyKey) }
+    Param1: ${ JSON.stringify(param1) }
+  `);
 }
 
 function findOptions(param1: Param1, param2: Options | undefined): Options {

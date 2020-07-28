@@ -442,6 +442,23 @@ describe('Typed Env: Integration test', () => {
         exp.toThrowError(EnvPropConfigError);
         exp.toThrowError('Config.Symbol(My Key)');
       });
+
+      it('Should throw the error when duplicate names specified in the custom "name" param', () => {
+        // arrange
+        class Config {
+          @EnvString(['AAA', 'BBB', 'AAA', 'CCC'])
+          public readonly name!: string;
+        }
+        const raw: EnvRawObject = { AAA: '111', BBB: '222', CCC: '333' };
+
+        // act
+        const cb = () => {
+          loadEnvConfig(Config, raw);
+        };
+
+        // assert
+        expect(cb).toThrowError(/Config\.name.+AAA.+BBB.+CCC/);
+      });
     }); // END EnvPropConfigError
 
     describe(`${ NoEnvVarError.name }`, () => {

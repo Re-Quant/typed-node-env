@@ -48,6 +48,10 @@ export class EnvConfigLoader {
   ): any {
     const { params } = envInfo;
 
+    if (Array.isArray(params.name) && new Set(params.name).size !== params.name.length) {
+      const msg = `Custom names array contains duplicates: ${ params.name.map(v => `"${ v }"`).join(', ') }`;
+      throw new EnvPropConfigError(ctor, propertyKey, msg);
+    }
     const envVarNames = this.makeEnvVarNames(ctor, propertyKey, params.name, prefix);
     const duplicated = envVarNames.find(name => this.usedEnvVarNames.has(name));
     if (duplicated && !params.allowConflictingVarName) {

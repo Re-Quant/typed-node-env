@@ -1,7 +1,6 @@
 import { EnvCtor } from '../types';
 import { utils } from '../utils';
 
-// TODO: test multiple equal names
 export class EnvPropConfigError extends Error {
   public readonly name = 'EnvPropConfigError';
 

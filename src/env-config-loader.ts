@@ -1,11 +1,14 @@
 import { MetadataStorage } from './metadata-storage';
 import { AnyObject, ECastingType, EnvCtor, EnvRawObject, EnvVarName, Type } from './types';
 import { UEnvPropInfo } from './types/env-prop-info.union';
-import { EnvPropConfigError, NoEnvVarError, TypeCastingError } from './errors';
+import { EnvPropConfigError, EnvVarNameDuplicateError, NoEnvVarError, TypeCastingError } from './errors';
 import { utils } from './utils';
 import { EnvNestedPropInfo } from './decorators/env-nested.decorator';
 
 export class EnvConfigLoader {
+
+  private readonly usedEnvVarNames
+      = new Map<string, { ctor: EnvCtor; propertyKey: string | symbol; allowConflicts: boolean }>();
 
   public constructor(
       private readonly metadata: MetadataStorage,
@@ -46,6 +49,16 @@ export class EnvConfigLoader {
     const { params } = envInfo;
 
     const envVarNames = this.makeEnvVarNames(ctor, propertyKey, params.name, prefix);
+    const duplicated = envVarNames.find(name => this.usedEnvVarNames.has(name));
+    if (duplicated && !params.allowConflictingVarName) {
+      const { ctor: ctor2, propertyKey: propertyKey2 } = this.usedEnvVarNames.get(duplicated)!;
+      throw new EnvVarNameDuplicateError(ctor, propertyKey, duplicated, ctor2, propertyKey2);
+    }
+    envVarNames.forEach(name => this.usedEnvVarNames.set(
+      name,
+      { ctor, propertyKey, allowConflicts: !!params.allowConflictingVarName },
+    ));
+
     const existsEnvVars = envVarNames.filter(v => this.rawEnvObj[v] !== undefined);
     const nameOfTheFirstNotEmptyEnvVar = params.allowEmpty
         ? existsEnvVars[0]
@@ -65,6 +78,7 @@ export class EnvConfigLoader {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return envInfo.isArray
+             // TODO: escape splitting
           // eslint-disable-next-line @typescript-eslint/no-unsafe-return
              ? rawEnvVarValue.split(',').map(v => envInfo.transformer(v, params as any))
              : envInfo.transformer(rawEnvVarValue, params as any);

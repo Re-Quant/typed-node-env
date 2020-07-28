@@ -2,7 +2,13 @@ import { EnvBoolean, EnvEnum, EnvFloat, EnvInteger, EnvNested, EnvString } from 
 import { resetMetadataStorage } from './metadata-storage';
 import { EnvRawObject, Inter } from './types';
 import { loadEnvConfig } from './load-env-config.fn';
-import { EnvPropConfigError, EnvPropDecorationError, NoEnvVarError, TypeCastingError } from './errors';
+import {
+  EnvPropConfigError,
+  EnvPropDecorationError,
+  EnvVarNameDuplicateError,
+  NoEnvVarError,
+  TypeCastingError,
+} from './errors';
 
 describe('Typed Env: Integration test', () => {
 
@@ -328,11 +334,11 @@ describe('Typed Env: Integration test', () => {
     it('Should handle multiple nesting and concatenate prefixes', () => {
       // arrange
       class Nested2Config {
-        @EnvString()
+        @EnvString({ allowConflictingVarName: true })
         public readonly name!: string;
       }
       class NestedConfig {
-        @EnvFloat()
+        @EnvFloat({ allowConflictingVarName: true })
         public readonly name!: number;
 
         @EnvNested()
@@ -533,7 +539,67 @@ describe('Typed Env: Integration test', () => {
         exp.toThrowError('Config.deep');
         exp.toThrowError(`${ EnvNested.name }`);
       });
-    });
+    }); // END EnvPropDecorationError
+
+    describe(`${ EnvVarNameDuplicateError.name }`, () => {
+      const raw: EnvRawObject = Object.freeze({
+        NAME: 'hello',
+        MY_NAME: 'welcome',
+      });
+
+      it('Should throw the error on duplicate fields being specified', () => {
+        // arrange
+        class Nested {
+          @EnvString()
+          public readonly name!: string;
+        }
+        class Config {
+          @EnvString('MY_NAME')
+          public readonly name!: string;
+
+          @EnvNested()
+          public readonly my!: Nested;
+        }
+
+        // act
+        const cb = () => {
+          loadEnvConfig(Config, raw);
+        };
+
+        // assert
+        const exp = expect(cb);
+        exp.toThrowError('Config.name');
+        exp.toThrowError('Nested.name');
+        exp.toThrowError('MY_NAME');
+        exp.toThrowError('allowConflictingVarName');
+      });
+
+      it('Should not throw the error when duplicate fields being specified .allowConflictingVarName = true', () => {
+        // arrange
+        class Nested {
+          @EnvString({ allowConflictingVarName: true })
+          public readonly name!: string;
+        }
+        class Config {
+          @EnvString({ name: 'MY_NAME', allowConflictingVarName: true })
+          public readonly name!: string;
+
+          @EnvNested()
+          public readonly my!: Nested;
+        }
+        const expected: Config = {
+          my: { name: 'welcome' },
+          name: 'welcome',
+        };
+
+        // act
+        const res = loadEnvConfig(Config, raw);
+
+        // assert
+        expect(res).toEqual(expected);
+      });
+    }); // END EnvVarNameDuplicateError
+
   }); // END Failed scenarios/Error messages and types testing
 
 });

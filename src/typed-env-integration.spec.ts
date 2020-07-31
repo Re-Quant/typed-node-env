@@ -122,6 +122,24 @@ describe('Typed Env: Integration test', () => {
     expect(config).toEqual(expected);
   }); // END Should retrieve all simple types from the ENV object
 
+  it('Should the same object reference in case we are passing an instance instead of a constructor', () => {
+    // arrange
+    class Config {
+      @EnvString()
+      public readonly name!: string;
+    }
+    const config = new Config();
+    const raw: EnvRawObject = { NAME: 'hello' };
+    const expected: Config = { name: 'hello' };
+
+    // act
+    const res = loadEnvConfig(config, raw);
+
+    // assert
+    expect(res).toBe(config);
+    expect(res).toEqual(expected);
+  });
+
   describe('Handling array in values', () => {
     it('Should handle arrays of all simple types', () => {
       // arrange

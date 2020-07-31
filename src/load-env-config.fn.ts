@@ -3,7 +3,7 @@ import { EnvConfigLoader } from './env-config-loader';
 import { getMetadataStorage } from './metadata-storage';
 
 export const loadEnvConfig =  <T extends AnyObject>(
-  EnvConfigCtor: Type<T>,
+  EnvConfigCtor: Type<T> | T,
   rawEnvObj: AnyObject = process.env,
 ): T => {
   const metadata = getMetadataStorage();

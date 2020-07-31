@@ -17,9 +17,11 @@ export class EnvConfigLoader {
       private readonly rawEnvObj: EnvRawObject,
   ) {}
 
-  public load<T extends AnyObject>(EnvConfigCtor: Type<T>, prefix?: string): T {
+  public load<T extends AnyObject>(EnvConfigCtorOnInstance: Type<T> | T, prefix?: string): T {
+    const isCtor = typeof EnvConfigCtorOnInstance === 'function';
 
-    const ins = new EnvConfigCtor();
+    const EnvConfigCtor = isCtor ? EnvConfigCtorOnInstance as Type<T> : EnvConfigCtorOnInstance.constructor as Type<T>;
+    const ins = isCtor ? new EnvConfigCtor() : EnvConfigCtorOnInstance as T;
 
     let CurrentDtoCtor: EnvCtor | undefined = EnvConfigCtor;
     let i: number;

@@ -1,9 +1,11 @@
 import { MetadataStorage } from './metadata-storage';
-import { AnyObject, ECastingType, EnvCtor, EnvRawObject, EnvVarName, Type } from './types';
+import { AnyObject, ECastingType, EnvCtor, EnvCtorProto, EnvRawObject, EnvVarName, Type } from './types';
 import { UEnvPropInfo } from './types/env-prop-info.union';
 import { EnvPropConfigError, EnvVarNameDuplicateError, NoEnvVarError, TypeCastingError } from './errors';
 import { utils } from './utils';
 import { EnvNestedPropInfo } from './decorators/env-nested.decorator';
+
+const ENV_CONFIG_MAX_INHERITANCE_LIMIT = 15;
 
 export class EnvConfigLoader {
 
@@ -16,18 +18,33 @@ export class EnvConfigLoader {
   ) {}
 
   public load<T extends AnyObject>(EnvConfigCtor: Type<T>, prefix?: string): T {
-    const ctorInfo = this.metadata.getEnvCtorInfo(EnvConfigCtor);
 
     const ins = new EnvConfigCtor();
-    ctorInfo.propsInfo.forEach((propInfo, prop) => {
-      const { envInfo } = propInfo;
-      if (!envInfo) return;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-      (ins as any)[prop] = envInfo.castType === ECastingType.Nested
+
+    let CurrentDtoCtor: EnvCtor | undefined = EnvConfigCtor;
+    let i: number;
+    for (i = 0; i < ENV_CONFIG_MAX_INHERITANCE_LIMIT && CurrentDtoCtor; i++) {
+      const ctorInfo = this.metadata.getEnvCtorInfo(CurrentDtoCtor);
+      ctorInfo.propsInfo.forEach((propInfo, prop) => {
+        const { envInfo } = propInfo;
+        if (!envInfo) return;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+        (ins as any)[prop] = envInfo.castType === ECastingType.Nested
           ? this.loadNested(envInfo, prefix)
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           : this.loadProperty(EnvConfigCtor, prop, envInfo, (ins as any)[prop], prefix);
-    });
+      });
+
+      // Looking for the parent to handle DTOs inheritance
+      const parentPrototype: EnvCtorProto | undefined
+          = CurrentDtoCtor.prototype && Object.getPrototypeOf(CurrentDtoCtor.prototype) as EnvCtorProto | undefined;
+      CurrentDtoCtor
+          = typeof parentPrototype?.constructor === 'function' ? parentPrototype.constructor as EnvCtor : undefined;
+    }
+    if (i >= ENV_CONFIG_MAX_INHERITANCE_LIMIT) {
+      const name = CurrentDtoCtor ? utils.findCtorName(CurrentDtoCtor) : '(Unknown Constructor)';
+      throw new RangeError(`${ name } ENV_CONFIG_MAX_INHERITANCE_LIMIT: ${ ENV_CONFIG_MAX_INHERITANCE_LIMIT } reached`);
+    }
     return Object.freeze(ins);
   }
 

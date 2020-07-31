@@ -1,6 +1,6 @@
 import { EnvBoolean, EnvEnum, EnvFloat, EnvInteger, EnvNested, EnvString } from './decorators';
 import { resetMetadataStorage } from './metadata-storage';
-import { EnvRawObject, Inter } from './types';
+import { EnvRawObject, Inter, Type } from './types';
 import { loadEnvConfig } from './load-env-config.fn';
 import {
   EnvPropConfigError,
@@ -443,6 +443,64 @@ describe('Typed Env: Integration test', () => {
       expect(cb).toThrowError();
     });
   }); // END Freezing config
+
+  describe('Inherited DTOs', () => {
+    it('Should retrieve DTO metadata on the all inheritance level', () => {
+      // arrange
+      class Base {
+        @EnvString()
+        public readonly name!: string;
+      }
+      class Child extends Base {
+        @EnvString()
+        public readonly email!: string;
+      }
+      class Main extends Child {
+        @EnvInteger()
+        public readonly age!: number;
+      }
+      const raw: EnvRawObject = {
+        NAME: 'welcome',
+        EMAIL: 'welcome@mail.com',
+        AGE: '25',
+      };
+      const expected: Main = {
+        name: 'welcome',
+        email: 'welcome@mail.com',
+        age: 25,
+      };
+
+      // act
+      const config = loadEnvConfig(Main, raw);
+
+      // assert
+      expect(config).toEqual(expected);
+    });
+    it('Should throw a RangeError on to long inheritance chain', () => {
+      // arrange
+      let ctor = class My {};
+      const ACTUAL_LIMIT = 15;
+      const LEVEL = 20;
+
+      // making 20-level inheritance (limit is 15)
+      for (let i = 1; i <= LEVEL; i++) {
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval,no-new-func
+        ctor = new Function('Prev', `return class Next${ i } extends Prev {}`)(ctor) as Type<any>;
+      }
+
+      // act
+      const cb = () => {
+        loadEnvConfig(ctor, {});
+      };
+
+      // assert
+      const exp = expect(cb);
+      exp.toThrowError(RangeError);
+      exp.toThrowError(String(ACTUAL_LIMIT));
+      exp.toThrowError('ENV_CONFIG_MAX_INHERITANCE_LIMIT');
+      exp.toThrowError(`Next${ LEVEL - ACTUAL_LIMIT }`);
+    });
+  }); // END Inherited DTOs
 
   describe('Failed scenarios/Error messages and types testing', () => {
     describe(`${ EnvPropConfigError.name }`, () => {

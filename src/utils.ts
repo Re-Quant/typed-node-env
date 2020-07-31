@@ -41,7 +41,11 @@ class TypedEnvUtils {
   }
 
   public ctorAndPropStr(ctor: Type<any>, propertyKey: string | symbol): string {
-    return `${ ctor.name }.${ String(propertyKey) }`;
+    return `${ this.findCtorName(ctor) }.${ String(propertyKey) }`;
+  }
+
+  public findCtorName(ctor: EnvCtor): string {
+    return ctor.name;
   }
 
 }

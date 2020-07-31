@@ -122,55 +122,77 @@ describe('Typed Env: Integration test', () => {
     expect(config).toEqual(expected);
   }); // END Should retrieve all simple types from the ENV object
 
-  it('Should handle arrays of all simple types', () => {
-    // arrange
-    class Config {
+  describe('Handling array in values', () => {
+    it('Should handle arrays of all simple types', () => {
+      // arrange
+      class Config {
 
-      @EnvInteger()
-      public readonly array!: number[];
+        @EnvInteger()
+        public readonly array!: number[];
 
-      // reflect-metadata was unable to reflect Array<...> as an array in the old TS versions
-      @EnvInteger()
-      public readonly arrayCtor!: Array<number>;
+        // reflect-metadata was unable to reflect Array<...> as an array in the old TS versions
+        @EnvInteger()
+        public readonly arrayCtor!: Array<number>;
 
-      @EnvInteger()
-      public readonly arrayWithDefault: number[] = [1, 2, 3];
+        @EnvInteger()
+        public readonly arrayWithDefault: number[] = [1, 2, 3];
 
-      @EnvInteger({ optional: true })
-      public readonly arrayOptional!: number[];
+        @EnvInteger({ optional: true })
+        public readonly arrayOptional!: number[];
 
-      @EnvFloat()
-      public readonly floatArray!: number[];
+        @EnvFloat()
+        public readonly floatArray!: number[];
 
-      @EnvString()
-      public readonly strArray!: string[];
+        @EnvString()
+        public readonly strArray!: string[];
 
-      @EnvBoolean()
-      public readonly boolArray!: boolean[];
-    }
-    const raw: EnvRawObject = {
-      ARRAY: '11,22,33',
-      ARRAY_CTOR: '1,2,3',
-      FLOAT_ARRAY: '11.22,33.44,55.66',
-      STR_ARRAY: 'me,you,we',
-      BOOL_ARRAY: 'true,0,false,1',
-    };
-    const expected: Inter<Config> = {
-      array: [11, 22, 33],
-      arrayCtor: [1, 2, 3],
-      arrayWithDefault: [1, 2, 3],
-      arrayOptional: [],
-      floatArray: [11.22, 33.44, 55.66],
-      strArray: ['me', 'you', 'we'],
-      boolArray: [true, false, false, true],
-    };
+        @EnvBoolean()
+        public readonly boolArray!: boolean[];
+      }
+      const raw: EnvRawObject = {
+        ARRAY: '11,22,33',
+        ARRAY_CTOR: '1,2,3',
+        FLOAT_ARRAY: '11.22,33.44,55.66',
+        STR_ARRAY: 'me,you,we',
+        BOOL_ARRAY: 'true,0,false,1',
+      };
+      const expected: Inter<Config> = {
+        array: [11, 22, 33],
+        arrayCtor: [1, 2, 3],
+        arrayWithDefault: [1, 2, 3],
+        arrayOptional: [],
+        floatArray: [11.22, 33.44, 55.66],
+        strArray: ['me', 'you', 'we'],
+        boolArray: [true, false, false, true],
+      };
 
-    // act
-    const config = loadEnvConfig(Config, raw);
+      // act
+      const config = loadEnvConfig(Config, raw);
 
-    // assert
-    expect(config).toEqual(expected);
-  }); // END Should handle arrays of all simple types
+      // assert
+      expect(config).toEqual(expected);
+    }); // END Should handle arrays of all simple types
+
+    it('Should commas escaping in during paring arrays', () => {
+      // arrange
+      class Config {
+        @EnvString()
+        public readonly names!: string[];
+      }
+      const raw: EnvRawObject = {
+        NAMES: 'Ivan\\,First,Petro\\,Second',
+      };
+      const expected: Config = {
+        names: ['Ivan,First', 'Petro,Second'],
+      };
+
+      // act
+      const config = loadEnvConfig(Config, raw);
+
+      // assert
+      expect(config).toEqual(expected);
+    });
+  }); // END Handling array in values
 
   it('Should use an array of specified ENV variable names to find existing one', () => {
     // arrange

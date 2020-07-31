@@ -82,9 +82,8 @@ export class EnvConfigLoader {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return envInfo.isArray
-             // TODO: escape splitting
           // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-             ? rawEnvVarValue.split(',').map(v => envInfo.transformer(v, params as any))
+             ? rawEnvVarValue.split(/(?<!\\),/g).map(v => envInfo.transformer(v.replace('\\,', ','), params as any))
              : envInfo.transformer(rawEnvVarValue, params as any);
     } catch (e) {
       throw new TypeCastingError(ctor, propertyKey, e, rawEnvVarValue, {

@@ -178,26 +178,56 @@ describe('Typed Env: Integration test', () => {
         const { NAME: deleted, ...env } = process.env; // eslint-disable-line @typescript-eslint/no-unused-vars
         process.env = env;
       });
+
+      it('Should name the class using the original config class name prefixed by double dollar', () => {
+        // arrange
+        @Environment()
+        class Config {
+          @EnvString()
+          public readonly name: string = '';
+        }
+
+        // act
+        const config = new Config();
+
+        // assert
+        expect(Config.name).toBe('$$Config');
+        expect(config.constructor.name).toBe('$$Config');
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(Object.getPrototypeOf(Config.prototype).constructor.name).toBe('Config');
+      });
+
+      it('Should pass the wrapped constructor arguments to the original constructor during instantiating', () => {
+        // arrange
+        const raw: EnvRawObject = { NAME: 'hello' };
+        @Environment(() => raw)
+        class Config {
+          @EnvString()
+          public readonly name!: string;
+
+          public readonly fromCtor: string;
+
+          public constructor(
+              public readonly arg: string,
+          ) {
+            this.fromCtor = `${ arg } 2`;
+          }
+
+        }
+        const expected: Config = {
+          name: 'hello',
+          arg: 'welcome',
+          fromCtor: 'welcome 2',
+        };
+
+        // act
+        const config = new Config('welcome');
+
+        // assert
+        expect(config).toEqual(expected);
+      });
     }); // END `@${ Environment.name }() decorator`
-
-    it('Should name the class using the original config class name prefixed by double dollar', () => {
-      // arrange
-      @Environment()
-      class Config {
-        @EnvString()
-        public readonly name: string = '';
-      }
-
-      // act
-      const config = new Config();
-
-      // assert
-      expect(Config.name).toBe('$$Config');
-      expect(config.constructor.name).toBe('$$Config');
-
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      expect(Object.getPrototypeOf(Config.prototype).constructor.name).toBe('Config');
-    });
   }); // END Instantiating
 
   describe('Handling array in values', () => {

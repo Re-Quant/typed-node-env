@@ -41,7 +41,8 @@
     "gen-public-package.json": "tools/gen-public-package.js"
   },
   "dependencies": {
-    "reflect-metadata": "^0.1.12"
+    "reflect-metadata": "^0.1.12",
+    "dotenv": "~8.2.0"
   },
   "devDependencies": {
     "@types/jest": "~26.0.5",

@@ -1,3 +1,4 @@
+import { DotenvConfigOptions, config } from 'dotenv';
 import { loadEnvConfig } from '../load-env-config.fn';
 import { EnvRawObject } from '../types';
 import { InternalEnvironmentClassFlag } from '../constants';
@@ -7,11 +8,16 @@ import { InternalEnvironmentClassFlag } from '../constants';
  * instantiation. This decorator extends the config class constructor and calls loadEnvConfig under the hood. So, no
  * need to call it manually in the case your class is decorated by Environment decorator.
  *
- * @param rawFactory by default `process.env` are used
+ * @param rawFactoryOrDotEnvConfig by default `process.env` are used
  */
-export function Environment(rawFactory?: () => EnvRawObject): ClassDecorator {
+export function Environment(rawFactoryOrDotEnvConfig?: () => EnvRawObject | DotenvConfigOptions): ClassDecorator {
+  const rawFactory = typeof rawFactoryOrDotEnvConfig === 'function' ? rawFactoryOrDotEnvConfig : undefined;
+  const dotEnvConfig = typeof rawFactoryOrDotEnvConfig !== 'function' ? rawFactoryOrDotEnvConfig : undefined;
+
   // eslint-disable-next-line @typescript-eslint/ban-types,arrow-parens
   return <TFunction extends Function>(target: TFunction): TFunction => {
+    config(dotEnvConfig);
+
     // eslint-disable-next-line @typescript-eslint/no-implied-eval,no-new-func,@typescript-eslint/no-unsafe-assignment
     const Ctor: TFunction = new Function(
       'Base', 'loadEnvConfigFn', 'rawObj',

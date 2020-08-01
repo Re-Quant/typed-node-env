@@ -1,4 +1,5 @@
 export { EnvBoolean } from './env-boolean.decorator';
+export { Environment } from './environment.decorator';
 export { EnvEnum } from './env-enum.decorator';
 export { EnvFloat } from './env-float.decorator';
 export { EnvInteger } from './env-integer.decorator';

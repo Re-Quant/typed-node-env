@@ -1,4 +1,4 @@
-import { EnvBoolean, EnvEnum, EnvFloat, EnvInteger, EnvNested, EnvString } from './decorators';
+import { EnvBoolean, EnvEnum, EnvFloat, EnvInteger, Environment, EnvNested, EnvString } from './decorators';
 import { resetMetadataStorage } from './metadata-storage';
 import { EnvRawObject, Inter, Type } from './types';
 import { loadEnvConfig } from './load-env-config.fn';
@@ -122,23 +122,83 @@ describe('Typed Env: Integration test', () => {
     expect(config).toEqual(expected);
   }); // END Should retrieve all simple types from the ENV object
 
-  it('Should the same object reference in case we are passing an instance instead of a constructor', () => {
-    // arrange
-    class Config {
-      @EnvString()
-      public readonly name!: string;
-    }
-    const config = new Config();
-    const raw: EnvRawObject = { NAME: 'hello' };
-    const expected: Config = { name: 'hello' };
+  describe('Instantiating', () => {
+    it('Should the same object reference in case we are passing an instance instead of a constructor', () => {
+      // arrange
+      class Config {
+        @EnvString()
+        public readonly name!: string;
+      }
+      const config = new Config();
+      const raw: EnvRawObject = { NAME: 'hello' };
+      const expected: Config = { name: 'hello' };
 
-    // act
-    const res = loadEnvConfig(config, raw);
+      // act
+      const res = loadEnvConfig(config, raw);
 
-    // assert
-    expect(res).toBe(config);
-    expect(res).toEqual(expected);
-  });
+      // assert
+      expect(res).toBe(config);
+      expect(res).toEqual(expected);
+    });
+
+    describe(`@${ Environment.name }() decorator`, () => {
+      it(`Should be filled during instantiating without ${ loadEnvConfig.name }() call`, () => {
+        // arrange
+        const raw: EnvRawObject = { NAME: 'hello' };
+        @Environment(() => raw)
+        class Config {
+          @EnvString()
+          public readonly name!: string;
+        }
+        const expected: Config = { name: 'hello' };
+
+        // act
+        const config = new Config();
+
+        // assert
+        expect(config).toEqual(expected);
+      });
+
+      it('Should use process.env in case rawFactory argument skipped', () => {
+        @Environment()
+        class Config {
+          @EnvString()
+          public readonly name!: string;
+        }
+        const expected: Config = { name: 'hello' };
+        process.env.NAME = 'hello';
+
+        // act
+        const config = new Config();
+
+        // assert
+        expect(config).toEqual(expected);
+
+        // clean up
+        const { NAME: deleted, ...env } = process.env; // eslint-disable-line @typescript-eslint/no-unused-vars
+        process.env = env;
+      });
+    }); // END `@${ Environment.name }() decorator`
+
+    it('Should name the class using the original config class name prefixed by double dollar', () => {
+      // arrange
+      @Environment()
+      class Config {
+        @EnvString()
+        public readonly name: string = '';
+      }
+
+      // act
+      const config = new Config();
+
+      // assert
+      expect(Config.name).toBe('$$Config');
+      expect(config.constructor.name).toBe('$$Config');
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(Object.getPrototypeOf(Config.prototype).constructor.name).toBe('Config');
+    });
+  }); // END Instantiating
 
   describe('Handling array in values', () => {
     it('Should handle arrays of all simple types', () => {

@@ -1,7 +1,6 @@
 import { loadEnvConfig } from '../load-env-config.fn';
 import { EnvRawObject } from '../types';
-
-export const InternalEnvironmentClassFlag = Symbol('InternalEnvironmentClassFlag');
+import { InternalEnvironmentClassFlag } from '../constants';
 
 /**
  * This is a decorator which is applied to a config class to provide a possibility of filling the env data during

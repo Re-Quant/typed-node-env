@@ -4,8 +4,7 @@ import { UEnvPropInfo } from './types/env-prop-info.union';
 import { EnvPropConfigError, EnvVarNameDuplicateError, NoEnvVarError, TypeCastingError } from './errors';
 import { utils } from './utils';
 import { EnvNestedPropInfo } from './decorators/env-nested.decorator';
-
-const ENV_CONFIG_MAX_INHERITANCE_LIMIT = 15;
+import { ENV_CONFIG_MAX_INHERITANCE_LIMIT } from './constants';
 
 export class EnvConfigLoader {
 
@@ -23,10 +22,10 @@ export class EnvConfigLoader {
     const EnvConfigCtor = isCtor ? EnvConfigCtorOnInstance as Type<T> : EnvConfigCtorOnInstance.constructor as Type<T>;
     const ins = isCtor ? new EnvConfigCtor() : EnvConfigCtorOnInstance as T;
 
-    let CurrentDtoCtor: EnvCtor | undefined = EnvConfigCtor;
+    let CurrentEnvCtor: EnvCtor | undefined = EnvConfigCtor;
     let i: number;
-    for (i = 0; i < ENV_CONFIG_MAX_INHERITANCE_LIMIT && CurrentDtoCtor; i++) {
-      const ctorInfo = this.metadata.getEnvCtorInfo(CurrentDtoCtor);
+    for (i = 0; i < ENV_CONFIG_MAX_INHERITANCE_LIMIT && CurrentEnvCtor; i++) {
+      const ctorInfo = this.metadata.getEnvCtorInfo(CurrentEnvCtor);
       ctorInfo.propsInfo.forEach((propInfo, prop) => {
         const { envInfo } = propInfo;
         if (!envInfo) return;
@@ -37,14 +36,14 @@ export class EnvConfigLoader {
           : this.loadProperty(EnvConfigCtor, prop, envInfo, (ins as any)[prop], prefix);
       });
 
-      // Looking for the parent to handle DTOs inheritance
+      // Looking for the parent to handle Env Constructors inheritance
       const parentPrototype: EnvCtorProto | undefined
-          = CurrentDtoCtor.prototype && Object.getPrototypeOf(CurrentDtoCtor.prototype) as EnvCtorProto | undefined;
-      CurrentDtoCtor
+          = CurrentEnvCtor.prototype && Object.getPrototypeOf(CurrentEnvCtor.prototype) as EnvCtorProto | undefined;
+      CurrentEnvCtor
           = typeof parentPrototype?.constructor === 'function' ? parentPrototype.constructor as EnvCtor : undefined;
     }
     if (i >= ENV_CONFIG_MAX_INHERITANCE_LIMIT) {
-      const name = CurrentDtoCtor ? utils.findCtorName(CurrentDtoCtor) : '(Unknown Constructor)';
+      const name = CurrentEnvCtor ? utils.findCtorName(CurrentEnvCtor) : '(Unknown Constructor)';
       throw new RangeError(`${ name } ENV_CONFIG_MAX_INHERITANCE_LIMIT: ${ ENV_CONFIG_MAX_INHERITANCE_LIMIT } reached`);
     }
     return Object.freeze(ins);

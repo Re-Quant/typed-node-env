@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 
 import { CommonEnvPropParams, EnvCtor, EnvCtorProto, EnvVarName, Type } from './types';
+import { ENV_CONFIG_MAX_INHERITANCE_LIMIT, InternalEnvironmentClassFlag } from './constants';
 
 class TypedEnvUtils {
 
@@ -45,7 +46,16 @@ class TypedEnvUtils {
   }
 
   public findCtorName(ctor: EnvCtor): string {
-    return ctor.name;
+    let currCtor: EnvCtor | undefined = ctor;
+
+    let i: number = 0;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    while (currCtor && (currCtor as any)[InternalEnvironmentClassFlag] && i++ < ENV_CONFIG_MAX_INHERITANCE_LIMIT) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+      currCtor = Object.getPrototypeOf(currCtor.prototype).constructor;
+    }
+
+    return i >= ENV_CONFIG_MAX_INHERITANCE_LIMIT ? ctor.name : currCtor?.name || ctor.name;
   }
 
 }

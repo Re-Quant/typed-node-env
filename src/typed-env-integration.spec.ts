@@ -1,7 +1,6 @@
-import { EnvBoolean, EnvEnum, EnvFloat, EnvInteger, Environment, EnvNested, EnvString } from './decorators';
+import { EnvBoolean, EnvEnum, EnvFloat, EnvInteger, Environment, EnvNested, EnvString, loadEnvConfig } from './index';
 import { resetMetadataStorage } from './metadata-storage';
 import { EnvRawObject, Inter, Type } from './types';
-import { loadEnvConfig } from './load-env-config.fn';
 import {
   EnvPropConfigError,
   EnvPropDecorationError,

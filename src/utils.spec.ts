@@ -1,5 +1,6 @@
 import { utils } from './utils';
 import { EnvCtor } from './types';
+import { Environment, EnvString } from './decorators';
 
 describe(`${ utils.constructor.name }`, () => {
   describe('.screamingSnakeCase()', () => {
@@ -42,6 +43,23 @@ describe(`${ utils.constructor.name }`, () => {
       }
 
       expect(res).toBe(Foo);
+    });
+  });
+
+  describe('.findCtorName()', () => {
+    it(`In case of using @${ Environment.name }() decorator should find the original class name`, () => {
+      // arrange
+      @Environment()
+      class Config {
+        @EnvString()
+        public readonly name: string = '';
+      }
+
+      // act
+      const originalName = utils.findCtorName(Config);
+
+      // assert
+      expect(originalName).toBe('Config');
     });
   });
 });

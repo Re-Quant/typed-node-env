@@ -280,7 +280,7 @@ describe('Typed Env: Integration test', () => {
       expect(config).toEqual(expected);
     }); // END Should handle arrays of all simple types
 
-    it('Should commas escaping in during paring arrays', () => {
+    it('Should not split by escaped commas during paring arrays', () => {
       // arrange
       class Config {
         @EnvString()
@@ -291,6 +291,26 @@ describe('Typed Env: Integration test', () => {
       };
       const expected: Config = {
         names: ['Ivan,First', 'Petro,Second'],
+      };
+
+      // act
+      const config = loadEnvConfig(Config, raw);
+
+      // assert
+      expect(config).toEqual(expected);
+    });
+
+    it('Should handle escaped backslash before commas during paring arrays', () => {
+      // arrange
+      class Config {
+        @EnvString()
+        public readonly names!: string[];
+      }
+      const raw: EnvRawObject = {
+        NAMES: 'Ivan\\\\,First,Petro\\,Second',
+      };
+      const expected: Config = {
+        names: ['Ivan\\', 'First', 'Petro,Second'],
       };
 
       // act

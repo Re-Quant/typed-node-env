@@ -58,6 +58,16 @@ class TypedEnvUtils {
     return i >= ENV_CONFIG_MAX_INHERITANCE_LIMIT ? ctor.name : currCtor?.name || ctor.name;
   }
 
+  public splitStringToArray(raw: string): string[] {
+    const items = raw.split(/(?<!(?<!\\)\\),/g);
+
+    return items.map((v, i) => {
+      let item = v.replace(/\\,/g, ',');
+      if (i + 1 < items.length) item = item.replace(/\\$/, '');
+      return item;
+    });
+  }
+
 }
 
 export const utils = new TypedEnvUtils();

@@ -24,6 +24,8 @@ const defaultParams: EnvBooleanParams = {
 const booleanValuesMap: Dictionary<boolean> = {
   true:  true,
   false: false,
+  yes:  true,
+  no: false,
   1: true,
   0: false,
 };

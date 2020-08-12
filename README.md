@@ -1,4 +1,4 @@
-# Typed-Node-ENV
+# Typed Node ENV
 
 <p align="center">
   <a target="_blank" href="https://www.gnu.org/licenses/gpl-3.0">
@@ -21,7 +21,7 @@
   </a>
 </p>
 
-<p align="center">🧨 &nbsp;&nbsp; 💥 &nbsp;&nbsp; 💪 &nbsp;&nbsp; <strong>Strictly typed access and type casting for ENV variables</strong> &nbsp;&nbsp; ✅ &nbsp;&nbsp; 👨‍💻 &nbsp;&nbsp; 😎</p>
+<p align="center">🧨 &nbsp;&nbsp; 💥 &nbsp;&nbsp; 💪 &nbsp;&nbsp; <strong>Strictly typed access and type-casting for ENV variables</strong> &nbsp;&nbsp; ✅ &nbsp;&nbsp; 👨‍💻 &nbsp;&nbsp; 😎</p>
 
 <p>&nbsp;</p>
 <p><i>Notice: If you have any propositions feel free to make an issue or create a pull request.</i></p>

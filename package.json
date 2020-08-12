@@ -1,6 +1,6 @@
 {
   "name": "@z-brain/typed-node-env",
-  "description": "💥 Strictly typed access and type casting for ENV variables 👏",
+  "description": "💥 Strictly typed access and type-casting for ENV variables 👏",
   "license": "GPL-3.0",
   "private": false,
   "version": "1.0.1",

@@ -314,7 +314,7 @@ yarn install
 
 ### How to build and publish NPM package
 
-*NPM Token:* `3240...1349`
+*NPM Token:* `6cf9...7ab8`
 
 CI configuration details are here: [.github/workflows/npmpublish.yml](.github/workflows/npmpublish.yml)
 

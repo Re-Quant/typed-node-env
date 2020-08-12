@@ -21,9 +21,7 @@
   </a>
 </p>
 
-<p align="center">🧨 &nbsp;&nbsp; 💥 &nbsp;&nbsp; 💪 &nbsp;&nbsp; <strong>💥 Strictly typed access and type casting for ENV variables </strong> &nbsp;&nbsp; ✅ &nbsp;&nbsp; 👨‍💻 &nbsp;&nbsp; 😎</p>
-
-<p align="center"><i>Zero third-party dependencies</i></p>
+<p align="center">🧨 &nbsp;&nbsp; 💥 &nbsp;&nbsp; 💪 &nbsp;&nbsp; <strong>Strictly typed access and type casting for ENV variables</strong> &nbsp;&nbsp; ✅ &nbsp;&nbsp; 👨‍💻 &nbsp;&nbsp; 😎</p>
 
 <p>&nbsp;</p>
 <p><i>Notice: If you have any propositions feel free to make an issue or create a pull request.</i></p>
@@ -224,13 +222,13 @@ Usually we write class properties in `camelCase` notation and environment variab
    
    | decorator | input value | result |
    | --- | --- | --- |
-   | EnvBoolean | `'   '` or `''` | `false` |
-   | EnvFloat | `'   '` or `''` | `0` |
-   | EnvInteger | `'   '` or `''` | `0` |
-   | EnvString | `'   '` | `'   '` |
-   | EnvString | `''` | `''` |
-   | EnvEnum | `''` | throws error except cases when an empty string is a enum option value |
-   | EnvEnum | `'  '` | throws error except cases when `'   '` string is a enum option value |
+   | `EnvBoolean` | `'   '` or `''` | `false` |
+   | `EnvFloat` | `'   '` or `''` | `0` |
+   | `EnvInteger` | `'   '` or `''` | `0` |
+   | `EnvString` | `'   '` | `'   '` |
+   | `EnvString` | `''` | `''` |
+   | `EnvEnum` | `''` | throws error except cases when an empty<br>string is a enum option value |
+   | `EnvEnum` | `'  '` | throws error except cases when `'   '` string<br>is a enum option value |
 
 ### Handling arrays
 
@@ -338,7 +336,7 @@ npm run pre-push
 1. `yarn run build:local`
 2. Then you can install a local package build from path `file:.../typed-node-env/dist`.
 
-## Author
+## :man_technologist: Author
 
 | [<img src="https://www.korniychuk.pro/avatar.jpg" width="100px;"/><br /><sub>Anton Korniychuk</sub>](https://korniychuk.pro) |
 | :---: |

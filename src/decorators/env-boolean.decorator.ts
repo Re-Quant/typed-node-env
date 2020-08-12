@@ -33,6 +33,7 @@ const booleanValuesMap: Dictionary<boolean> = {
 export const transformer: TypeCastingTransformer<EnvBooleanParams, boolean> = (raw) => {
   const value = booleanValuesMap[String(raw).toLowerCase()];
   if (value !== undefined) return value;
+  if (!String(raw).trim().length) return false;
 
   throw new TypeError('Boolean-like value expected, something else is gotten');
 };

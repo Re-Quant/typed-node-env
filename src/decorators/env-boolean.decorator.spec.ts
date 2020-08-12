@@ -14,13 +14,14 @@ describe(`${ EnvBoolean.name } -> transformer`, () => {
     it('"FALSE" -> false', () => expect(transformer('FALSE', {})).toBe(false));
     it('"YES"   -> true',  () => expect(transformer('YES', {})).toBe(true));
     it('"NO"    -> false', () => expect(transformer('NO', {})).toBe(false));
+
+    it('"" (empty string)',     () => expect(transformer('', {})).toBe(false));
+    it('"   " (space filled)',  () => expect(transformer('   ', {})).toBe(false));
   });
 
   describe('Invalid values: should throw TypeError', () => {
     it('"asdf"', () => expect(() => transformer('asdf', {})).toThrowError(TypeError));
     it('"1111"', () => expect(() => transformer('1111', {})).toThrowError(TypeError));
     it('"0000"', () => expect(() => transformer('0000', {})).toThrowError(TypeError));
-    it('"" (empty string)',     () => expect(() => transformer('', {})).toThrowError(TypeError));
-    it('"   " (space filled)',  () => expect(() => transformer('   ', {})).toThrowError(TypeError));
   });
 });

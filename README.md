@@ -1,17 +1,23 @@
 # Typed-Node-ENV
 
 <p align="center">
-  <a target="_blank" href="https://github.com/z-brain/typed-node-env/actions?query=workflow%3A%22Build%22">
-    <img alt="Build status" src="https://github.com/z-brain/typed-node-env/workflows/Build/badge.svg">
+  <a target="_blank" href="https://www.gnu.org/licenses/gpl-3.0">
+    <img alt="License: GPL v3" src="https://img.shields.io/badge/License-GPLv3-blue.svg">
   </a>
   <a target="_blank" href="https://www.npmjs.com/package/@z-brain/typed-node-env">
     <img alt="NPM version" src="https://img.shields.io/npm/v/@z-brain/typed-node-env.svg">
   </a>
+  <a target="_blank" href="https://www.npmjs.com/package/@z-brain/typed-node-env">
+    <img alt="NPM Bundle size" src="https://img.shields.io/bundlephobia/min/@z-brain/typed-node-env">
+  </a>
+  <a target="_blank" href="https://snyk.io/test/npm/typed-node-env">
+    <img alt="Snyk Vulnerabilities for npm package" src="https://img.shields.io/snyk/vulnerabilities/npm/@z-brain/typed-node-env.svg">
+  </a>
+  <a target="_blank" href="https://github.com/z-brain/typed-node-env/actions?query=workflow%3A%22Build%22">
+    <img alt="Build status" src="https://github.com/z-brain/typed-node-env/workflows/Build/badge.svg">
+  </a>
   <a target="_blank" href="https://codecov.io/gh/z-brain/typed-node-env">
     <img alt="Code Coverage" src="https://codecov.io/gh/z-brain/typed-node-env/branch/master/graph/badge.svg">
-  </a>
-  <a target="_blank" href="https://www.gnu.org/licenses/gpl-3.0">
-    <img alt="License: GPL v3" src="https://img.shields.io/badge/License-GPLv3-blue.svg">
   </a>
 </p>
 
@@ -272,7 +278,7 @@ TEST_ENUM=One,Two
 * https://github.com/Hippocrate/env-decorator
 * https://github.com/derbenoo/ts-configurable
 
-## Development notes
+## :wrench: Development notes
 
 ### Quick Start
 

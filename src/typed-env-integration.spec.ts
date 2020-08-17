@@ -745,6 +745,35 @@ describe('Typed Env: Integration test', () => {
         expect(resNested.mixed).toEqual({ name: 'hello' });
       });
     });
+
+    describe(`GIVEN: A property with triple-mix type: boolean, string enum & array of string enum values
+      THEN: Should cast all of them`, () => {
+      // arrange
+      /** This is a complex type from TypeORM, it is copy-pasted just to make the test more realistic */
+      type LoggerOptions = boolean | 'all' | ('query' | 'schema' | 'error' | 'warn' | 'info' | 'log' | 'migration')[];
+
+      const allowedValues: LoggerOptions = ['query', 'schema', 'error', 'warn', 'info', 'log', 'migration'];
+      class Config {
+        @EnvBoolean()
+        @EnvEnum({ enum: allowedValues, isArray: true })
+        @EnvEnum({ enum: ['all'] })
+        public logging!: LoggerOptions;
+      }
+
+      const rawBool: EnvRawObject = { LOGGING: 'true' };
+      const rawAll: EnvRawObject = { LOGGING: 'all' };
+      const rawEnum: EnvRawObject = { LOGGING: 'error,warn,info' };
+
+      // act
+      const resBool = loadEnvConfig(Config, rawBool);
+      const resAll = loadEnvConfig(Config, rawAll);
+      const resEnum = loadEnvConfig(Config, rawEnum);
+
+      // assert
+      expect(resBool.logging).toBe(true);
+      expect(resAll.logging).toBe('all');
+      expect(resEnum.logging).toEqual(['error', 'warn', 'info']);
+    });
   }); // END Multi-type/Multi-decorator properties
 
   describe('Freezing config', () => {

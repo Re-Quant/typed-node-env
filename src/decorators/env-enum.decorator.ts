@@ -22,13 +22,20 @@ const defaultParams: Partial<EnvEnumParams> = {
   ...commonDefaultParams,
 };
 
-const enumValuesHashTable = new Map<AnyEnum, Set<string | number>>();
+const enumValuesHashTable = new Map<AnyEnum, { values: Set<string | number>; isNumeric: boolean }>();
 export const transformer: TypeCastingTransformer<EnvEnumParams, AnyEnum> = (raw, { enum: enumType }) => {
+  const ifEnumIsArray = enumType instanceof Array;
+
   if (!enumValuesHashTable.has(enumType)) {
-    enumValuesHashTable.set(enumType, new Set(Object.values(enumType)));
+    const enumValues = ifEnumIsArray ? enumType as any[] : Object.values(enumType);
+    const isNumeric = enumValues.some(v => typeof v === 'number');
+    enumValuesHashTable.set(enumType, { isNumeric, values: new Set<string | number>(enumValues) });
   }
-  const values = enumValuesHashTable.get(enumType)!;
-  if (values.has(raw)) return raw as AnyEnum;
+
+  const { values, isNumeric } = enumValuesHashTable.get(enumType)!;
+  const rawValue = isNumeric ? +raw : raw as string;
+
+  if (values.has(rawValue)) return rawValue as any; // eslint-disable-line @typescript-eslint/no-unsafe-return
 
   throw new TypeError(`Can't cast to enum.
     Enum: ${ utils.stringifySimpleRawValue(enumType, Infinity) }`);

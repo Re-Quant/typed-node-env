@@ -1,6 +1,6 @@
 import { EnvFloat, transformer } from './env-float.decorator';
 
-describe(`${ EnvFloat.name }`, () => {
+describe(`@${ EnvFloat.name }() -> transform`, () => {
   describe('Valid cases', () => {
     it('".123" -> 0.123',     () => expect(transformer('.123', {})).toBe(0.123));
     it('"0.123" -> 0.123',    () => expect(transformer('0.123', {})).toBe(0.123));

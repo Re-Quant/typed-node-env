@@ -1,6 +1,6 @@
 import { EnvBoolean, transformer } from './env-boolean.decorator';
 
-describe(`${ EnvBoolean.name } -> transformer`, () => {
+describe(`@${ EnvBoolean.name }() -> transformer`, () => {
   describe('Valid values: should return boolean', () => {
     it('"1"     -> true',  () => expect(transformer('1', {})).toBe(true));
     it('"0"     -> false', () => expect(transformer('0', {})).toBe(false));

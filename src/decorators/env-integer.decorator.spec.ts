@@ -1,6 +1,6 @@
 import { EnvInteger, transformer as t } from './env-integer.decorator';
 
-describe(`${ EnvInteger.name }`, () => {
+describe(`@${ EnvInteger.name }() -> transform`, () => {
   describe('Valid numbers', () => {
     it('"0" -> 0',      () => expect(t('0', {})).toBe(0));
     it('"123" -> 123',  () => expect(t('123', {})).toBe(123));

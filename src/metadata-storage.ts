@@ -4,7 +4,7 @@ import { EnvCtor } from './types';
 import { UEnvPropInfo } from './types/env-prop-info.union'; // eslint-disable-line import/no-cycle
 
 export interface EnvCtorPropInfo {
-  envInfo?: UEnvPropInfo;
+  envInfo?: UEnvPropInfo | UEnvPropInfo[];
 }
 
 export interface EnvCtorInfo {
@@ -16,7 +16,9 @@ export class MetadataStorage {
 
   public setCtorEnvPropInfo(ctor: EnvCtor, propertyKey: string | symbol, envPropInfo: UEnvPropInfo): void {
     const propInfo = this.getEnvCtorPropInfo(ctor, propertyKey);
-    propInfo.envInfo = envPropInfo;
+    propInfo.envInfo = propInfo.envInfo === undefined  ? envPropInfo :
+                       Array.isArray(propInfo.envInfo) ? [...propInfo.envInfo, envPropInfo] :
+                                                         [propInfo.envInfo, envPropInfo];
   }
 
   public getEnvCtorInfo(ctor: EnvCtor): EnvCtorInfo {

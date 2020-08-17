@@ -1,7 +1,13 @@
 import { MetadataStorage } from './metadata-storage';
 import { AnyObject, ECastingType, EnvCtor, EnvCtorProto, EnvRawObject, EnvVarName, Type } from './types';
 import { UEnvPropInfo } from './types/env-prop-info.union';
-import { EnvPropConfigError, EnvVarNameDuplicateError, NoEnvVarError, TypeCastingError } from './errors';
+import {
+  EnvPropConfigError,
+  EnvVarNameDuplicateError,
+  MultiTypeCastingError,
+  NoEnvVarError,
+  TypeCastingError,
+} from './errors';
 import { utils } from './utils';
 import { EnvNestedPropInfo } from './decorators/env-nested.decorator';
 import { ENV_CONFIG_MAX_INHERITANCE_LIMIT } from './constants';
@@ -29,11 +35,12 @@ export class EnvConfigLoader {
       ctorInfo.propsInfo.forEach((propInfo, prop) => {
         const { envInfo } = propInfo;
         if (!envInfo) return;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-        (ins as any)[prop] = envInfo.castType === ECastingType.Nested
-          ? this.loadNested(envInfo, prefix)
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          : this.loadProperty(EnvConfigCtor, prop, envInfo, (ins as any)[prop], prefix);
+        /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+        (ins as any)[prop] // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+            = Array.isArray(envInfo) ? this.loadMultiple(EnvConfigCtor, prop, envInfo, (ins as any)[prop], prefix) :
+              envInfo.castType === ECastingType.Nested ? this.loadNested(envInfo, prefix) :
+              this.loadProperty(EnvConfigCtor, prop, envInfo, (ins as any)[prop], prefix);
+        /* eslint-enable @typescript-eslint/no-unsafe-member-access */
       });
 
       // Looking for the parent to handle Env Constructors inheritance
@@ -57,6 +64,34 @@ export class EnvConfigLoader {
     return this.load(envInfo.params.config, prefix);
   }
 
+  private loadMultiple(
+    ctor: EnvCtor,
+    propertyKey: string | symbol,
+    envInfos: UEnvPropInfo[],
+    propDefaultValue: any,
+    prefix?: string,
+  ): any {
+    const errors = new Map<ECastingType, Error & { previous?: Error; raw?: unknown }>();
+    let result: undefined | unknown;
+
+    const found = envInfos.some((envInfo) => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        result = envInfo.castType === ECastingType.Nested
+                 ? this.loadNested(envInfo, prefix)
+                 : this.loadProperty(ctor, propertyKey, envInfo, propDefaultValue, prefix);
+        return true;
+      } catch (e) {
+        errors.set(envInfo.castType, e);
+      }
+      return false;
+    });
+
+    if (found) return result;
+
+    throw new MultiTypeCastingError(ctor, propertyKey, Array.from(errors.entries()), 'No acceptable value for multi-type field');
+  }
+
   private loadProperty(
     ctor: EnvCtor,
     propertyKey: string | symbol,
@@ -74,7 +109,9 @@ export class EnvConfigLoader {
     const duplicated = envVarNames.find(name => this.usedEnvVarNames.has(name));
     if (duplicated && !params.allowConflictingVarName) {
       const { ctor: ctor2, propertyKey: propertyKey2 } = this.usedEnvVarNames.get(duplicated)!;
-      throw new EnvVarNameDuplicateError(ctor, propertyKey, duplicated, ctor2, propertyKey2);
+      if (ctor !== ctor2 || propertyKey !== propertyKey2) {
+        throw new EnvVarNameDuplicateError(ctor, propertyKey, duplicated, ctor2, propertyKey2);
+      }
     }
     envVarNames.forEach(name => this.usedEnvVarNames.set(
       name,

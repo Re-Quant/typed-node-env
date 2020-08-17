@@ -68,6 +68,13 @@ class TypedEnvUtils {
     });
   }
 
+  public reindent(strings: TemplateStringsArray, ...args: any[]): string {
+    const raw = String.raw(strings, ...args);
+    const space = ' '.repeat(4);
+    const br = '\n';
+    return raw.replace(/^ */mg, space).trim() + br;
+  }
+
 }
 
 export const utils = new TypedEnvUtils();

@@ -581,6 +581,124 @@ describe('Typed Env: Integration test', () => {
     });
   }); // END Nested Configs
 
+  describe('Multi-type/Multi-decorator properties', () => {
+    describe('GIVEN: 3 decorators added: EnvInteger/EnvBoolean/EnvString', () => {
+      it('Should choose the right type by the input data', () => {
+        // arrange
+        class Config {
+          @EnvString()
+          @EnvBoolean()
+          @EnvInteger()
+          public mixed!: number | boolean | string;
+        }
+
+        const rawInteger: EnvRawObject = { MIXED: '1234' };
+        const rawBoolean: EnvRawObject = { MIXED: 'yes' };
+        const rawString: EnvRawObject = { MIXED: 'hello' };
+
+        // act
+        const resInteger = loadEnvConfig(Config, rawInteger);
+        const resBoolean = loadEnvConfig(Config, rawBoolean);
+        const resString  = loadEnvConfig(Config, rawString);
+
+        // assert
+        expect(resInteger.mixed).toBe(1234);
+        expect(resBoolean.mixed).toBe(true);
+        expect(resString.mixed).toBe('hello');
+      });
+    });
+
+    describe('GIVEN: 2 decorators added: EnvInteger/EnvBoolean', () => {
+      it('Should throw an error in case passed string is not an integer & not a boolean-like', () => {
+        // arrange
+        class Config {
+          @EnvBoolean()
+          @EnvInteger()
+          public mixed!: number | boolean | string;
+        }
+
+        const rawString: EnvRawObject = { MIXED: 'hello' };
+
+        // act
+        const cb  = () => loadEnvConfig(Config, rawString);
+
+        // assert
+        const exp = expect(cb);
+        exp.toThrowError('No acceptable value for multi-type field');
+        exp.toThrowError('For INTEGER');
+        exp.toThrowError('For BOOLEAN');
+      });
+    });
+
+    describe('GIVEN: 2 decorators added: EnvInteger/EnvNested', () => {
+      it('Should throw an error in case passed string is not an integer & not the nested config', () => {
+        // arrange
+        class NestedConfig {
+          @EnvString()
+          public name!: string;
+        }
+        class Config {
+          @EnvInteger()
+          @EnvNested({ config: NestedConfig })
+          public mixed!: number | NestedConfig;
+        }
+
+        const rawString: EnvRawObject = { MIXED: 'hello' };
+
+        // act
+        const cb  = () => loadEnvConfig(Config, rawString);
+
+        // assert
+        const exp = expect(cb);
+        exp.toThrowError('No acceptable value for multi-type field');
+        exp.toThrowError('For INTEGER');
+        exp.toThrowError('For NESTED');
+      });
+
+      it('Should make an integer value from integer-like value', () => {
+        // arrange
+        class NestedConfig {
+          @EnvString()
+          public name!: string;
+        }
+        class Config {
+          @EnvInteger()
+          @EnvNested({ config: NestedConfig })
+          public mixed!: number | NestedConfig;
+        }
+
+        const rawString: EnvRawObject = { MIXED: '1234' };
+
+        // act
+        const res = loadEnvConfig(Config, rawString);
+
+        // assert
+        expect(res.mixed).toBe(1234);
+      });
+
+      it('Should make a nested-object in case an integer-like ENV variable is absent, a var for nested config exists', () => {
+        // arrange
+        class NestedConfig {
+          @EnvString()
+          public name!: string;
+        }
+        class Config {
+          @EnvInteger()
+          @EnvNested({ config: NestedConfig })
+          public mixed!: number | NestedConfig;
+        }
+
+        const rawString: EnvRawObject = { MIXED_NAME: 'hello' };
+
+        // act
+        const res = loadEnvConfig(Config, rawString);
+
+        // assert
+        expect((res.mixed as NestedConfig).name).toBe('hello');
+      });
+    });
+  }); // END Multi-type/Multi-decorator properties
+
   describe('Freezing config', () => {
     it('Should freeze top level config', () => {
       // arrange

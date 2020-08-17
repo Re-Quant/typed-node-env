@@ -5,8 +5,10 @@ import { ENV_CONFIG_MAX_INHERITANCE_LIMIT, InternalEnvironmentClassFlag } from '
 
 class TypedEnvUtils {
 
-  public reflectIsArrayFlag(proto: EnvCtorProto, propertyKey: string | symbol): boolean {
-    return Reflect.getMetadata('design:type', proto, propertyKey) === Array;
+  public reflectIsArrayFlag(proto: EnvCtorProto, propertyKey: string | symbol, isArrayFlag?: boolean): boolean {
+    return isArrayFlag !== undefined
+           ? isArrayFlag
+           : Reflect.getMetadata('design:type', proto, propertyKey) === Array;
   }
 
   public reflectEnvCtorOnProperty(

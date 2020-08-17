@@ -12,7 +12,7 @@ import { EnvPropDecorationError } from '../errors';
 
 import { commonDefaultParams } from './common-default-params';
 
-interface EnvNestedParams extends Omit<CommonEnvPropParams, 'name' | 'optional'> {
+interface EnvNestedParams extends Omit<CommonEnvPropParams, 'name' | 'optional' | 'isArray'> {
   /**
    * Use this field to specify nested config prefixes manually.
    * By the default the Property Key transformed to uppercase + underscore used as the prefix.

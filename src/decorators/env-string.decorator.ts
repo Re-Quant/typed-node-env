@@ -30,7 +30,7 @@ export function EnvString(paramsOrName: EnvStringParams | EnvVarName = {}): Prop
       transformer,
       castType: ECastingType.String,
       params: { ...defaultParams, ...params },
-      isArray: utils.reflectIsArrayFlag(target, propertyKey),
+      isArray: utils.reflectIsArrayFlag(target, propertyKey, params.isArray),
     };
     const ctor = target.constructor as EnvCtor;
     metadata.setCtorEnvPropInfo(ctor, propertyKey, envPropInfo);

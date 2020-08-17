@@ -43,7 +43,7 @@ export function EnvEnum(paramsOrEnum: EnvEnumParams | AnyEnum): PropertyDecorato
       transformer,
       castType: ECastingType.Enum,
       params: { ...defaultParams, ...params },
-      isArray: utils.reflectIsArrayFlag(target, propertyKey),
+      isArray: utils.reflectIsArrayFlag(target, propertyKey, params.isArray),
     };
     const ctor = target.constructor as EnvCtor;
     metadata.setCtorEnvPropInfo(ctor, propertyKey, envPropInfo);

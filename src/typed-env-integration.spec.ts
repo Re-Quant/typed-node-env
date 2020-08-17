@@ -581,7 +581,7 @@ describe('Typed Env: Integration test', () => {
     });
   }); // END Nested Configs
 
-  describe('Multi-type/Multi-decorator properties', () => {
+  describe('Mixed types/Multi-type/Multi-decorator properties', () => {
     describe('GIVEN: 3 decorators added: EnvInteger/EnvBoolean/EnvString', () => {
       it('Should choose the right type by the input data', () => {
         // arrange
@@ -695,6 +695,54 @@ describe('Typed Env: Integration test', () => {
 
         // assert
         expect((res.mixed as NestedConfig).name).toBe('hello');
+      });
+    });
+
+    describe('Receiving .isArray param to handle arrays in mixed types', () => {
+      it('Should handle isArray flag for arrays of simple types', () => {
+        // arrange
+        class Config {
+          @EnvFloat()
+          @EnvInteger({ isArray: true })
+          @EnvBoolean({ isArray: true })
+          public mixed!: boolean[] | number[] | number;
+        }
+        const rawInt: EnvRawObject = { MIXED: '123,234' };
+        const rawBool: EnvRawObject = { MIXED: 'true,false,true' };
+        const rawFloat: EnvRawObject = { MIXED: '123.2' };
+
+        // act
+        const resInt = loadEnvConfig(Config, rawInt);
+        const resBool = loadEnvConfig(Config, rawBool);
+        const resFloat = loadEnvConfig(Config, rawFloat);
+
+        // assert
+        expect(resInt.mixed).toEqual([123, 234]);
+        expect(resBool.mixed).toEqual([true, false, true]);
+        expect(resFloat.mixed).toBe(123.2);
+      });
+
+      it('Should handle isArray flag for a mix with simple & nested types', () => {
+        // arrange
+        class NestedConfig {
+          @EnvString()
+          public name!: string;
+        }
+        class Config {
+          @EnvNested({ config: NestedConfig })
+          @EnvBoolean({ isArray: true })
+          public mixed!: boolean[] | NestedConfig;
+        }
+        const rawNested: EnvRawObject = { MIXED_NAME: 'hello' };
+        const rawBool: EnvRawObject = { MIXED: 'true,false,true' };
+
+        // act
+        const resBool = loadEnvConfig(Config, rawBool);
+        const resNested = loadEnvConfig(Config, rawNested);
+
+        // assert
+        expect(resBool.mixed).toEqual([true, false, true]);
+        expect(resNested.mixed).toEqual({ name: 'hello' });
       });
     });
   }); // END Multi-type/Multi-decorator properties

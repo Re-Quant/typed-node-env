@@ -47,7 +47,7 @@ export function EnvBoolean(paramsOrName: EnvBooleanParams | EnvVarName = {}): Pr
       transformer,
       castType: ECastingType.Boolean,
       params: { ...defaultParams, ...params },
-      isArray: utils.reflectIsArrayFlag(target, propertyKey),
+      isArray: utils.reflectIsArrayFlag(target, propertyKey, params.isArray),
     };
     const ctor = target.constructor as EnvCtor;
     metadata.setCtorEnvPropInfo(ctor, propertyKey, envPropInfo);

@@ -3,7 +3,7 @@
   "description": "💥 Strictly typed access and type-casting for ENV variables 👏",
   "license": "GPL-3.0",
   "private": false,
-  "version": "1.0.4",
+  "version": "1.0.5",
   "keywords": [
     "config",
     "configuration",

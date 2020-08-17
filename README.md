@@ -269,6 +269,35 @@ MASK=false,false,true,false
 TEST_ENUM=One,Two
 ```
 
+### Mixed types
+
+You can define any mixed types for your properties and use multiple `@Env*()` decorators for the same property.
+
+Use case for TypeORM .logging field handling
+```typescript
+/** This is a complex type from TypeORM */
+type LoggerOptions = boolean | 'all' | ('query' | 'schema' | 'error' | 'warn' | 'info' | 'log' | 'migration')[];
+
+const allowedValues: LoggerOptions = ['query', 'schema', 'error', 'warn', 'info', 'log', 'migration'];
+class EnvConfig {
+    @EnvBoolean()
+    @EnvEnum({ enum: allowedValues, isArray: true })
+    @EnvEnum({ enum: ['all'] })
+    public logging!: LoggerOptions;
+}
+```
+
+Various of the ENV variable value:
+```shell script
+LOGGING=true             # in TS will be transformed to true
+LOGGING=all              # in TS will be transformed to 'all'
+LOGGING=error,warn,info  # in TS will be transformed to ['error', 'warn', 'info']
+```
+
+### More examples
+
+You can find a lot of examples in the [typed-env-integration.spec.ts](src/typed-env-integration.spec.ts)
+
 ### Similar projects
 
 * https://github.com/igabesz/config-decorators

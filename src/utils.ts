@@ -1,5 +1,3 @@
-import 'reflect-metadata';
-
 import { CommonEnvPropParams, EnvCtor, EnvCtorProto, EnvVarName, Type } from './types';
 import { ENV_CONFIG_MAX_INHERITANCE_LIMIT, InternalEnvironmentClassFlag } from './constants';
 
